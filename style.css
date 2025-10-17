@@ -1,0 +1,35 @@
+@layer utilities {
+  .content-auto {
+    content-visibility: auto;
+  }
+  .bone-card {
+    @apply bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl;
+  }
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+  .btn-secondary {
+    @apply bg-neutral text-dark px-4 py-2 rounded-lg hover:bg-neutral/80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral;
+  }
+  .btn-accent {
+    @apply bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
+  .lang-btn {
+    @apply px-3 py-1 rounded-full text-sm transition-all duration-200;
+  }
+  .lang-btn.active {
+    @apply bg-primary text-white;
+  }
+  .lang-btn:not(.active) {
+    @apply bg-neutral hover:bg-neutral/80;
+  }
+  .option-btn {
+    @apply w-full text-left p-3 border border-gray-200 rounded-lg mb-2 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer;
+  }
+  .option-btn.correct {
+    @apply border-green-500 bg-green-50;
+  }
+  .option-btn.incorrect {
+    @apply border-red-500 bg-red-50;
+  }
+}

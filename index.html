@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Osteologia - 人体骨骼解剖学学习</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36BFFA',
+            accent: '#FF7D00',
+            neutral: '#F5F7FA',
+            dark: '#1D2129',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            latin: ['Times New Roman', 'serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Chart.js 用于统计图表 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans text-dark min-h-screen">
+  <!-- 顶部导航 -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-bone text-primary text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold text-primary">Osteologia</h1>
+      </div>
+      
+      <!-- 语言切换 -->
+      <div class="flex items-center space-x-2 order-3 md:order-2">
+        <button id="lang-zh" class="lang-btn active">中文</button>
+        <button id="lang-en" class="lang-btn">English</button>
+      </div>
+      
+      <nav class="hidden md:flex items-center space-x-6 order-2 md:order-3">
+        <a href="#" class="text-primary font-medium" data-i18n="practice">练习</a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors" data-i18n="bone-list">骨骼列表</a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors" data-i18n="quiz">测验模式</a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors" data-i18n="statistics">学习统计</a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors" data-i18n="resources">解剖学资源</a>
+      </nav>
+      
+      <button class="md:hidden text-gray-600 order-4" id="mobile-menu-btn">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+      <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+        <a href="#" class="py-2 text-primary font-medium" data-i18n="practice">练习</a>
+        <a href="#" class="py-2 text-gray-600 hover:text-primary transition-colors" data-i18n="bone-list">骨骼列表</a>
+        <a href="#" class="py-2 text-gray-600 hover:text-primary transition-colors" data-i18n="quiz">测验模式</a>
+        <a href="#" class="py-2 text-gray-600 hover:text-primary transition-colors" data-i18n="statistics">学习统计</a>
+        <a href="#" class="py-2 text-gray-600 hover:text-primary transition-colors" data-i18n="resources">解剖学资源</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要内容 -->
+  <main class="container mx-auto px-4 py-8 md:py-12">
+    <!-- 模式切换 -->
+    <section class="mb-8">
+      <div class="flex flex-wrap gap-2 justify-center">
+        <button id="study-mode-btn" class="btn-primary flex items-center gap-2">
+          <i class="fa fa-book"></i> <span data-i18n="study-mode">学习模式</span>
+        </button>
+        <button id="quiz-mode-btn" class="btn-secondary flex items-center gap-2">
+          <i class="fa fa-question-circle"></i> <span data-i18n="quiz-mode">测验模式</span>
+        </button>
+      </div>
+    </section>
+    
+    <!-- 页面介绍 -->
+    <section class="text-center mb-12">
+      <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4" data-i18n="page-title">人体骨骼解剖学练习</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto" data-i18n="page-description">通过图片识别学习人体骨骼结构，点击下方按钮查看答案或获取新的骨骼图片进行练习。</p>
+    </section>
+    
+    <!-- 学习模式内容 -->
+    <section id="study-mode" class="max-w-3xl mx-auto mb-10">
+      <div class="bone-card">
+        <!-- 骨骼图片 -->
+        <div class="relative bg-neutral aspect-[4/3] overflow-hidden">
+          <img id="bone-image" src="https://picsum.photos/id/1082/800/600" alt="人体骨骼图片" class="w-full h-full object-cover transition-opacity duration-500">
+          <div id="loading-indicator" class="absolute inset-0 flex items-center justify-center bg-white/80 hidden">
+            <i class="fa fa-circle-o-notch fa-spin text-3xl text-primary"></i>
+          </div>
+          <!-- 发音按钮 -->
+          <button id="pronounce-btn" class="absolute bottom-4 right-4 bg-white/80 hover:bg-white text-primary rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-all">
+            <i class="fa fa-volume-up"></i>
+          </button>
+        </div>
+        
+        <!-- 骨骼名称区域 -->
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold" data-i18n="bone-name">骨骼名称</h3>
+            <span id="bone-category" class="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">下肢骨</span>
+          </div>
+          
+          <!-- 答案区域 -->
+          <div id="answer-container" class="mb-6">
+            <div id="answer-hidden" class="bg-neutral h-12 rounded-lg flex items-center justify-center text-gray-500" data-i18n="click-to-reveal">
+              点击"显示答案"查看骨骼拉丁语名称
+            </div>
+            <div id="answer-shown" class="hidden">
+              <p class="text-center text-2xl md:text-3xl font-latin font-bold text-primary mb-2" id="latin-name">Tibia</p>
+              <p class="text-center text-gray-600" id="common-name">胫骨</p>
+              <!-- 新增芬兰语名称显示 -->
+              <p class="text-center text-gray-500 text-sm italic" id="finnish-name">Jalkaranka</p>
+            </div>
+          </div>
+          
+          <!-- 骨骼详细说明 -->
+          <div id="bone-details" class="mb-6 hidden bg-neutral p-4 rounded-lg">
+            <h4 class="font-semibold mb-2" data-i18n="bone-description">骨骼说明</h4>
+            <p class="text-gray-700 text-sm" id="bone-description-text">胫骨是小腿内侧的长骨，是下肢主要承重骨之一，连接股骨和踝骨。</p>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="flex flex-wrap gap-3 justify-center">
+            <button id="show-answer" class="btn-primary flex items-center gap-2">
+              <i class="fa fa-eye"></i> <span data-i18n="show-answer">显示答案</span>
+            </button>
+            <button id="show-details" class="btn-secondary flex items-center gap-2">
+              <i class="fa fa-info-circle"></i> <span data-i18n="show-details">详细说明</span>
+            </button>
+            <button id="new-bone" class="btn-secondary flex items-center gap-2">
+              <i class="fa fa-refresh"></i> <span data-i18n="new-bone">新骨骼</span>
+            </button>
+            <button id="save-bone" class="btn-secondary flex items-center gap-2">
+              <i class="fa fa-bookmark-o"></i> <span data-i18n="save">收藏</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 测验模式内容 (默认隐藏) -->
+    <section id="quiz-mode" class="max-w-3xl mx-auto mb-10 hidden">
+      <div class="bone-card">
+        <!-- 骨骼图片 -->
+        <div class="relative bg-neutral aspect-[4/3] overflow-hidden">
+          <img id="quiz-bone-image" src="https://picsum.photos/id/1082/800/600" alt="人体骨骼图片" class="w-full h-full object-cover">
+        </div>
+        
+        <!-- 测验内容区域 -->
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4 text-center" data-i18n="identify-bone">请识别这是哪块骨骼（拉丁语名称）</h3>
+          
+          <!-- 选项区域 -->
+          <div id="quiz-options" class="mb-6 space-y-2">
+            <!-- 选项将通过JS动态生成 -->
+          </div>
+          
+          <!-- 结果反馈 (默认隐藏) -->
+          <div id="quiz-feedback" class="mb-6 hidden p-4 rounded-lg">
+            <p id="feedback-text" class="text-center"></p>
+            <p class="text-center mt-2 font-latin font-bold text-primary" id="correct-answer"></p>
+            <p class="text-center text-sm text-gray-600 mt-1" id="answer-translation"></p>
+            <!-- 新增芬兰语反馈 -->
+            <p class="text-center text-sm text-gray-500 mt-1 italic" id="finnish-translation"></p>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="flex flex-wrap gap-3 justify-center">
+            <button id="check-answer" class="btn-accent flex items-center gap-2 hidden">
+              <i class="fa fa-check"></i> <span data-i18n="check-answer">检查答案</span>
+            </button>
+            <button id="next-quiz" class="btn-primary flex items-center gap-2 hidden">
+              <i class="fa fa-arrow-right"></i> <span data-i18n="next-question">下一题</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 学习进度和统计 -->
+    <section class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      <!-- 学习进度 -->
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="text-lg font-semibold mb-4 flex items-center">
+          <i class="fa fa-line-chart text-primary mr-2"></i> <span data-i18n="progress">学习进度</span>
+        </h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-neutral rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm mb-1" data-i18n="learned-bones">已学习骨骼</p>
+            <p class="text-2xl font-bold text-primary" id="learned-count">12/206</p>
+          </div>
+          <div class="bg-neutral rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm mb-1" data-i18n="today-learned">今日学习</p>
+            <p class="text-2xl font-bold text-primary" id="today-count">3</p>
+          </div>
+          <div class="bg-neutral rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm mb-1" data-i18n="saved-bones">收藏骨骼</p>
+            <p class="text-2xl font-bold text-primary" id="saved-count">2</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="bg-primary h-2.5 rounded-full" style="width: 6%"></div>
+          </div>
+          <p class="text-xs text-gray-500 mt-1 text-right" data-i18n="overall-progress">总体进度: 6%</p>
+        </div>
+      </div>
+      
+      <!-- 测验统计 -->
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="text-lg font-semibold mb-4 flex items-center">
+          <i class="fa fa-bar-chart text-accent mr-2"></i> <span data-i18n="quiz-stats">测验统计</span>
+        </h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-neutral rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm mb-1" data-i18n="total-quizzes">总测验数</p>
+            <p class="text-2xl font-bold text-accent" id="total-quizzes">15</p>
+          </div>
+          <div class="bg-neutral rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm mb-1" data-i18n="correct-answers">正确答案</p>
+            <p class="text-2xl font-bold text-accent" id="correct-answers">12</p>
+          </div>
+          <div class="bg-neutral rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm mb-1" data-i18n="accuracy">正确率</p>
+            <p class="text-2xl font-bold text-accent" id="accuracy">80%</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <canvas id="progress-chart" width="400" height="100"></canvas>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 快速导航 -->
+    <section class="max-w-5xl mx-auto mb-12">
+      <h3 class="text-lg font-semibold mb-4 flex items-center">
+        <i class="fa fa-th text-primary mr-2"></i> <span data-i18n="bone-regions">骨骼区域</span>
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        <button class="bone-region-btn bg-white border border-gray-200 rounded-lg p-3 text-center hover:border-primary hover:text-primary transition-colors" data-region="all">
+          <i class="fa fa-cubes text-xl mb-1"></i>
+          <p class="text-sm" data-i18n="all-bones">全部骨骼</p>
+        </button>
+        <button class="bone-region-btn bg-white border border-gray-200 rounded-lg p-3 text-center hover:border-primary hover:text-primary transition-colors" data-region="category-skull">
+          <i class="fa fa-user-circle-o text-xl mb-1"></i>
+          <p class="text-sm" data-i18n="skull">颅骨</p>
+        </button>
+        <button class="bone-region-btn bg-white border border-gray-200 rounded-lg p-3 text-center hover:border-primary hover:text-primary transition-colors" data-region="category-spine">
+          <i class="fa fa-arrows-v text-xl mb-1"></i>
+          <p class="text-sm" data-i18n="spine">脊柱</p>
+        </button>
+        <button class="bone-region-btn bg-white border border-gray-200 rounded-lg p-3 text-center hover:border-primary hover:text-primary transition-colors" data-region="category-thorax">
+          <i class="fa fa-shield text-xl mb-1"></i>
+          <p class="text-sm" data-i18n="thorax">胸廓</p>
+        </button>
+        <button class="bone-region-btn bg-white border border-gray-200 rounded-lg p-3 text-center hover:border-primary hover:text-primary transition-colors" data-region="category-upper">
+          <i class="fa fa-hand-paper-o text-xl mb-1"></i>
+          <p class="text-sm" data-i18n="upper-limbs">上肢骨</p>
+        </button>
+        <button class="bone-region-btn bg-white border border-gray-200 rounded-lg p-3 text-center hover:border-primary hover:text-primary transition-colors" data-region="category-lower">
+          <i class="fa fa-male text-xl mb-1"></i>
+          <p class="text-sm" data-i18n="lower-limbs">下肢骨</p>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-2 mb-4 md:mb-0">
+          <i class="fa fa-bone text-primary text-2xl"></i>
+          <h2 class="text-xl font-bold">Osteologia</h2>
+        </div>
+        <div class="flex space-x-6 mb-4 md:mb-0">
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-facebook"></i></a>
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-twitter"></i></a>
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-instagram"></i></a>
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-youtube-play"></i></a>
+        </div>
+        <p class="text-gray-400 text-sm" data-i18n="copyright">© 2023 Osteologia. 解剖学学习工具</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 数据文件 -->
+  <script src="js/data.js"></script>
+  
+  <!-- 主脚本 -->
+  <script src="js/app.js"></script>
+</body>
+</html>
