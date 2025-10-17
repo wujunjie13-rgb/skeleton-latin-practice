@@ -211,7 +211,9 @@ const translations = {
     "thorax": "胸廓",
     "upper-limbs": "上肢骨",
     "lower-limbs": "下肢骨",
-    "copyright": "© 2023 Osteologia. 解剖学学习工具"
+    "copyright": "© 2023 Osteologia. 解剖学学习工具",
+    "speech-not-supported": "您的浏览器不支持语音合成功能，请使用Chrome、Edge或Safari浏览器。",
+    "speech-error": "语音合成失败，请稍后再试。"
   },
   en: {
     "practice": "Practice",
@@ -252,7 +254,9 @@ const translations = {
     "thorax": "Thorax",
     "upper-limbs": "Upper Limbs",
     "lower-limbs": "Lower Limbs",
-    "copyright": "© 2023 Osteologia. Anatomy Learning Tool"
+    "copyright": "© 2023 Osteologia. Anatomy Learning Tool",
+    "speech-not-supported": "Your browser does not support speech synthesis. Please use Chrome, Edge, or Safari.",
+    "speech-error": "Speech synthesis failed. Please try again later."
   }
 };
 
